@@ -31,13 +31,12 @@ double BlackScholesMCPricer::generate(int nb_paths)
 			+ volatility * sqrt((i * option->getExpiry() / nb_paths) - ((i - 1) * option->getExpiry() / nb_paths)) * MT::rand_norm());
 		S.push_back(currentestimation);
 	}
-	int N = 1000000;
 	double sum = 0;
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < nb_paths; i++)
 	{
-		sum += S.at(i);
+		sum += S[i];
 	}
-	return exp(interest_rate * option->getExpiry()) * (1 / N) * option->payoff(sum);
+	return exp(interest_rate * option->getExpiry()) * (1 / nb_paths) * option->payoff(sum);
 }
 double BlackScholesMCPricer::operatorfunc()
 {

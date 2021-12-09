@@ -12,3 +12,7 @@ double AsianCallOption::payoff(double z)
 {
 	return std::max(z - strike , 0.0);
 }
+bool AsianCallOption::isAsianOption()
+{
+	return true;
+}

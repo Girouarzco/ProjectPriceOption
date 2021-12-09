@@ -137,17 +137,19 @@ int main()
 
         std::vector<double> ci;
         BlackScholesMCPricer* pricer;
-
+        std::cout << "Hello";
         for (auto& opt_ptr : opt_ptrs) {
             pricer = new BlackScholesMCPricer(opt_ptr, S0, r, sigma);
             //do {
             std::cout << pricer->generate(10);
+            std::cout << ":::";
                 ///ci = pricer->confidenceInterval();
             //} while (ci[1] - ci[0] > 1e-2);
             //std::cout << "nb samples: " << pricer->getNbPaths() << std::endl;
-            //delete pricer;
-            //delete opt_ptr;
+            delete pricer;
+            delete opt_ptr;
         }
+        std::cout << "hi";
     }
 }
 

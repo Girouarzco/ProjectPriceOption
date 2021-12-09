@@ -4,9 +4,11 @@ class AsianOption :
     public Option
 {
 public :
-    AsianOption(double,std::vector<double>);
-    double payoffPath(std::vector<double>);
-    double payoff();
+    AsianOption(std::vector<double>);
+    double payoffPath(std::vector <double>);
+    double payoff(double);
+    std::vector<double> getvec();
+    bool isAsianOption();
 private : 
     std::vector<double> vec;
 };

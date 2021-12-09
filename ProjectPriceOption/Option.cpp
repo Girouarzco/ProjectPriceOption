@@ -4,6 +4,8 @@ Option::Option(double x)
 {
 	this->expiry = x;
 }
+Option::Option()
+{}
 double Option::getExpiry()
 {
 	return expiry;
@@ -18,6 +20,10 @@ double Option::payoffPath(vector<double> vect )
 }
 
 bool Option::isAsianOption()
+{
+	return false;
+}
+bool Option::isAmericanOption()
 {
 	return false;
 }

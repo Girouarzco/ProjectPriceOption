@@ -1,4 +1,5 @@
 #include "DigitalCall.h"
+#include "DigitalOption.h"
 DigitalCall::DigitalCall(double x, double y) : DigitalOption(x, y)
 {
     SetOptionType(OptionType::Call);

@@ -1,9 +1,11 @@
 #pragma once
 #include "VanillaOption.h"
+#include "DigitalOption.h"
 class BlackScholesPricer
 {
 public:
 	BlackScholesPricer(VanillaOption* option, double asset_price, double interest_rate, double volatility);
+	BlackScholesPricer(DigitalOption* option, double asset_price, double interest_rate, double volatility);
 	double Operator();
 	double norm_pdf(const double& x);
 	double norm_cdf(const double& x);
@@ -13,9 +15,11 @@ public:
 
 private:
 	friend class VanillaOption;
-	VanillaOption* option;
+	Option* option;
 	double asset_price;
 	double interest_rate;
 	double volatility;
+	OptionType type;
+	double strike;
 };
 

@@ -9,21 +9,22 @@ CRRPricer::CRRPricer(Option* option, int depth, double asset_price, double up, d
 {
 
 
-		if (down < interest_rate && interest_rate < up)
-		{
-			this->S0 = asset_price;
-			this->U = up;
-			this->D = down;
-			this->R = interest_rate;
-			this->N = depth;
-			this->option = option;
-			BinaryTree<double> t;
-			t.setDepth(N);
-			this->payofftree = t;
+	if (down <= interest_rate && interest_rate >= up && option->isAsianOption() == true)
+	{
+		throw std::invalid_argument("Une de ces conditions n'est pas respéctée");
+	}
+	this->S0 = asset_price;
+	this->U = up;
+	this->D = down;
+	this->R = interest_rate;
+	this->N = depth;
+	this->option = option;
+	BinaryTree<double> t;
+	t.setDepth(N);
+	this->payofftree = t;
 
-		}
-		else { std::cout << "Une de ces conditions n'est pas respéctée"; }
-
+		
+		
 }
 void CRRPricer::setS0(double S0)
 {
@@ -95,9 +96,9 @@ double CRRPricer::operatorfunc()
 	return payofftree.GetNode(0, 0);
 }
 
-long factorial(int n)
+double factorial(int n)
 {
-	long factorial = 1;
+	double factorial = 1;
 	for (int i = 1; i <= n; ++i)
 	{
 		factorial *= i;

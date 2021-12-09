@@ -11,6 +11,17 @@ BlackScholesPricer::BlackScholesPricer(VanillaOption* option, double asset_price
 	this->asset_price = asset_price;
 	this->interest_rate = interest_rate;
 	this->volatility = volatility;
+    this->strike = option->Getstrike();
+    this->type = option->GetOptionType();
+}
+BlackScholesPricer::BlackScholesPricer(DigitalOption* option2, double asset_price, double interest_rate, double volatility)
+{
+    this->option = option2;
+    this->asset_price = asset_price;
+    this->interest_rate = interest_rate;
+    this->volatility = volatility;
+    this->strike = option2->Getstrike();
+    this->type = option2->GetOptionType();
 }
 double BlackScholesPricer::norm_pdf(const double& x) {
     return (1.0 / (pow(2 * M_PI, 0.5))) * exp(-0.5 * x * x);
@@ -30,7 +41,7 @@ double BlackScholesPricer::norm_cdf(const double& x)
 
 double BlackScholesPricer::d1calculator()
 {
-    return (log(asset_price / option->Getstrike()) + (interest_rate + volatility*volatility*0.5) * option->getExpiry()) / (volatility * (pow(option->getExpiry(), 0.5)));
+    return (log(asset_price / strike) + (interest_rate + volatility*volatility*0.5) * option->getExpiry()) / (volatility * (pow(option->getExpiry(), 0.5)));
 }
 double BlackScholesPricer::d2calculator()
 {
@@ -38,19 +49,19 @@ double BlackScholesPricer::d2calculator()
 }
 double BlackScholesPricer::Operator()
 {
-    if (option->GetOptionType() == OptionType::Call)
+    if (type == OptionType::Call)
     {
-        return asset_price * norm_cdf(d1calculator()) - option->Getstrike() * exp(-interest_rate * option->getExpiry()) * norm_cdf(d2calculator());
+        return asset_price * norm_cdf(d1calculator()) -  strike * exp(-interest_rate * option->getExpiry()) * norm_cdf(d2calculator());
     }
     else
     {
-        return -asset_price * norm_cdf(-d1calculator()) + option->Getstrike() * exp(-interest_rate * option->getExpiry()) * norm_cdf(-d2calculator());
+        return -asset_price * norm_cdf(-d1calculator()) + strike * exp(-interest_rate * option->getExpiry()) * norm_cdf(-d2calculator());
     }
 
 }
 double BlackScholesPricer::delta()
 {
-    if (option->GetOptionType() == OptionType::Call)
+    if (type == OptionType::Call)
     {
         return norm_cdf(d1calculator());
     }

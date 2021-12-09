@@ -1,16 +1,31 @@
 #include "AsianOption.h"
 
-AsianOption::AsianOption(double x ,std::vector<double> vect) : Option(x)
+AsianOption::AsianOption(std::vector<double> timeseries) 
 {
-    this->vec = vect;
+    this->vec = timeseries;
+}
+double AsianOption::payoffPath(std::vector<double> x)
+{
+    double somme = 0;
+    for (int i = 0; i <= x.size(); i++)
+    {
+        somme += x[i];
+    }
+    somme = somme / x.size();
+    return payoff(somme);
 }
 
-double AsianOption::payoffPath(std::vector<double>)
+double AsianOption::payoff(double somme)
 {
     return 0.0;
 }
 
-double AsianOption::payoff()
+std::vector<double> AsianOption::getvec()
 {
-    return 0.0;
+    return vec;
+}
+
+bool AsianOption::isAsianOption()
+{
+    return true;
 }

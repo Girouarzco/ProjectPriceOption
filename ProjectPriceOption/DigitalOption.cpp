@@ -16,7 +16,7 @@ double DigitalOption::Getstrike()
 
 OptionType DigitalOption::GetOptionType()
 {
-	return OptionType();
+	return type;
 }
 
 void DigitalOption::SetOptionType(OptionType nouv)

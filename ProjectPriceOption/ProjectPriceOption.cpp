@@ -6,12 +6,15 @@
 #include "BlackScholesPricer.h"
 #include "CRRPricer.h"
 #include "BinaryTree.h"
+#include "AsianCallOption.h"
+#include "AsianPutOption.h"
+#include "BlackScholesMCPricer.h"
 using namespace std;
 int main()
 {
 
     {
-
+        /*
         double S0(82.), K(80.), T(2.), r(0.05), sigma(0.25);
         CallOption opt1(T, K);
         PutOption opt2(T, K);
@@ -27,7 +30,7 @@ int main()
             std::cout << "BlackScholesPricer price=" << pricer2.Operator() << ", delta=" << pricer2.delta() << std::endl;
             std::cout << std::endl;
 
-            int N(15);
+            int N(150);
             double U = exp(sigma * sqrt(T / N)) - 1.0;
             double D = exp(-sigma * sqrt(T / N)) - 1.0;
             double R = exp(r * T / N) - 1.0;
@@ -80,9 +83,9 @@ int main()
 
         std::cout << std::endl << "*********************************************************" << std::endl;
     }
-/*
-   {
 
+   {
+   
         double S0(95.), K(100.), T(0.5), r(0.02), sigma(0.2);
         DigitalCall opt1(T, K);
         DigitalPut opt2(T, K);
@@ -117,7 +120,35 @@ int main()
             std::cout << "CRR pricer explicit formula price=" << crr_pricer2.closedformula() << std::endl;
         }
         std::cout << std::endl << "*********************************************************" << std::endl;
-    }*/
+        */
+        double S0(95.), K(100.), T(0.5), r(0.02), sigma(0.2);
+        std::vector<Option*> opt_ptrs;
+        opt_ptrs.push_back(new CallOption(T, K));
+        opt_ptrs.push_back(new PutOption(T, K));
+        opt_ptrs.push_back(new DigitalCall(T, K));
+        opt_ptrs.push_back(new DigitalPut(T, K));
+
+        std::vector<double> fixing_dates;
+        for (int i = 1; i <= 5; i++) {
+            fixing_dates.push_back(0.1 * i);
+        }
+        opt_ptrs.push_back(new AsianCallOption(fixing_dates, K));
+        opt_ptrs.push_back(new AsianPutOption(fixing_dates, K));
+
+        std::vector<double> ci;
+        BlackScholesMCPricer* pricer;
+
+        for (auto& opt_ptr : opt_ptrs) {
+            pricer = new BlackScholesMCPricer(opt_ptr, S0, r, sigma);
+            //do {
+            std::cout << pricer->generate(10);
+                ///ci = pricer->confidenceInterval();
+            //} while (ci[1] - ci[0] > 1e-2);
+            //std::cout << "nb samples: " << pricer->getNbPaths() << std::endl;
+            //delete pricer;
+            //delete opt_ptr;
+        }
+    }
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

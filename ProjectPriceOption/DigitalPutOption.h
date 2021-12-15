@@ -1,11 +1,12 @@
 #pragma once
 #include "DigitalOption.h"
-class DigitalPut :
+class DigitalPutOption :
     public DigitalOption
 {
 public:
-    DigitalPut(double, double);
+    DigitalPutOption(double, double);
     double payoff(double);
     OptionType GetOptionType();
+
 };
 

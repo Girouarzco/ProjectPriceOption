@@ -1,49 +1,83 @@
 #include "BlackScholesMCPricer.h"
 #include "Option.h"
 #include "MT.h"
+#include "AsianOption.h"
+#include <numeric>
 #include <iostream>
+#include <vector>
+#include <algorithm>
+
 BlackScholesMCPricer::BlackScholesMCPricer(Option* option, double initial_price, double interest_rate, double volatility)
 {
 	this->option = option;
 	this->interest_rate = interest_rate;
-	this->asset_price = initial_price;
+	this->assetprice = initial_price;
 	this->volatility = volatility;
+	this->sum = 0;
+	this->sum_sqrt = 0;
+	this->NbPaths = 0;
 }
 
 int BlackScholesMCPricer::getNbPaths()
 {
 	return NbPaths;
 }
-
-double BlackScholesMCPricer::generate(int nb_paths)
+void BlackScholesMCPricer::setnbpaths(int x )
 {
-	std::vector<double> S;
+	this->NbPaths = x;
+}
+void BlackScholesMCPricer::generate(int nb_paths)
+{
+	std::vector<double> t;
+	NbPaths += nb_paths ;
 	if (option->isAsianOption() == false)
 	{
-		nb_paths = 1;//m
+		
+		t.push_back(0.0);
+		t.push_back(option->getExpiry());
 	}
-	currentestimation = asset_price;
-	for (int i = 1; i <= nb_paths; i++)
+	else
 	{
-		NbPaths++;
-		currentestimation = currentestimation * exp((interest_rate - (pow(volatility, 2) / 2)) *
-			(((i * option->getExpiry()/ nb_paths) - ((i - 1) * option->getExpiry() / nb_paths)))
-			+ volatility * sqrt((i * option->getExpiry() / nb_paths) - ((i - 1) * option->getExpiry() / nb_paths)) * MT::rand_norm());
-		S.push_back(currentestimation);
+		t.push_back(0.0);
+		t = ((AsianOption*)option)->getvec();
 	}
-	double sum = 0;
-	for (int i = 0; i < nb_paths; i++)
+	std::vector<double> payoffspaths ;
+	for (int n = 0; n < getNbPaths(); n++)
 	{
-		sum += S[i];
+		std::vector<double> S;
+		for (int i = 1; i < t.size(); i++)
+		{
+			currentestimation = assetprice * exp((interest_rate - (volatility*volatility/ 2)) *
+			(t[i]-t[i-1]) + volatility*pow(t[i] - t[i - 1],0.5) * MT::rand_norm());
+			S.push_back(currentestimation);
+		}
+		payoffspaths.push_back(option->payoffPath(S));
 	}
-	return exp(interest_rate * option->getExpiry()) * (1 / nb_paths) * option->payoff(sum);
+	double sum_of_paths = 0;
+	for (int k = 0; k < payoffspaths.size(); k++)
+	{
+		sum_of_paths += payoffspaths[k];
+	}
+	sum = sum_of_paths;
+	sum_sqrt = sum_of_paths * sum_of_paths;
+	currentestimation = exp(- interest_rate * option->getExpiry()) / nb_paths *sum_of_paths ;
 }
-double BlackScholesMCPricer::operatorfunc()
+double BlackScholesMCPricer::operator()()
 {
-	if (currentestimation == NULL)
+	if (currentestimation<0)
 	{
 		throw std::invalid_argument("Une de ces conditions n'est pas respéctée");
 	}
 	return currentestimation;
+}
+
+std::vector<double> BlackScholesMCPricer::confidenceInterval()
+{
+	double sd = sqrt(1 / double(NbPaths) * sum_sqrt - pow(1 / double(NbPaths) * sum, 2));
+	std::vector<double> bounds;
+	bounds.push_back(currentestimation - 1.96 * sd / NbPaths);
+	bounds.push_back(currentestimation + 1.96 * sd / NbPaths);
+
+	return bounds;
 }
 

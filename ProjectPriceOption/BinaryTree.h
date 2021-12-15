@@ -14,7 +14,7 @@ public :
 			_tree[i].resize(i + 1);
 		}
 	}
-	void SetNode(int n, int i, T x)
+	void setNode(int n, int i, T x)
 	{
 		_tree[n][i] = x;
 	}
@@ -22,7 +22,7 @@ public :
 	{
 		return _tree[n][i];
 	}
-	void Display() const
+	void display() const
 	{
 		for (int i = 0; i <= depth; i++)
 		{

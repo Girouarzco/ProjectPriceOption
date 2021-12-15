@@ -42,10 +42,10 @@
     <ClCompile Include="DigitalOption.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DigitalCall.cpp">
+    <ClCompile Include="DigitalCallOption.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DigitalPut.cpp">
+    <ClCompile Include="DigitalPutOption.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AsianOption.cpp">
@@ -98,10 +98,10 @@
     <ClInclude Include="DigitalOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DigitalCall.h">
+    <ClInclude Include="DigitalCallOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DigitalPut.h">
+    <ClInclude Include="DigitalPutOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AsianOption.h">

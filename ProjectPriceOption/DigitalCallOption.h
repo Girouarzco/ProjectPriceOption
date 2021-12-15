@@ -1,11 +1,11 @@
 #pragma once
 #include "DigitalOption.h"
-class DigitalCall :
+class DigitalCallOption :
     public DigitalOption
 {
 public:
-	DigitalCall(double, double);
-	double payoff(double);
+	DigitalCallOption(double, double);
+	double payoff(double); 
 	OptionType GetOptionType();
 };
 

@@ -6,7 +6,7 @@ class BlackScholesPricer
 public:
 	BlackScholesPricer(VanillaOption* option, double asset_price, double interest_rate, double volatility);
 	BlackScholesPricer(DigitalOption* option, double asset_price, double interest_rate, double volatility);
-	double Operator();
+	double operator()();
 	double norm_pdf(const double& x);
 	double norm_cdf(const double& x);
 	double d1calculator();

@@ -15,7 +15,7 @@ public:
 	void setR(double R);
 	void compute();
 	double get(int, int);
-	double operatorfunc();
+	double operator()(bool closed_form =false);
 	double RNP() const;
 	double closedformula();
 private:

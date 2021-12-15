@@ -1,13 +1,17 @@
 #include "AsianOption.h"
+#include "Option.h"
 
 AsianOption::AsianOption(std::vector<double> timeseries) 
 {
     this->vec = timeseries;
+    double somme = 0;
+    SetExpiry(timeseries.back());
+    
 }
 double AsianOption::payoffPath(std::vector<double> x)
 {
     double somme = 0;
-    for (int i = 0; i <= x.size(); i++)
+    for (int i = 0; i < x.size(); i++)
     {
         somme += x[i];
     }

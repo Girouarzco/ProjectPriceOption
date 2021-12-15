@@ -8,9 +8,10 @@ public:
 	Option();
 	double getExpiry();
 	virtual double payoff(double);
-	double payoffPath(vector<double>);
-	bool isAsianOption();
+	virtual double payoffPath(vector<double>);
+	virtual bool isAsianOption();
 	bool isAmericanOption();
+	void SetExpiry(double);
 private:
 	double expiry;
 };

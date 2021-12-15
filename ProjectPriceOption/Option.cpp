@@ -16,7 +16,7 @@ double Option::payoff(double x)
 }
 double Option::payoffPath(vector<double> vect )
 {
-	return 0.0;
+	return payoff(vect.back());
 }
 
 bool Option::isAsianOption()
@@ -26,4 +26,9 @@ bool Option::isAsianOption()
 bool Option::isAmericanOption()
 {
 	return false;
+}
+
+void Option::SetExpiry(double x)
+{
+	this->expiry = x;
 }

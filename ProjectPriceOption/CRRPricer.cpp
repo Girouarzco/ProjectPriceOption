@@ -23,8 +23,8 @@ CRRPricer::CRRPricer(Option* option, int depth, double asset_price, double up, d
 	t.setDepth(N);
 	this->payofftree = t;
 
-		
-		
+
+
 }
 void CRRPricer::setS0(double S0)
 {
@@ -68,7 +68,7 @@ void CRRPricer::compute()
 			for (int i = 0; i <= k; i++)
 			{
 				double S = S0 * pow(1 + U, i) * pow(1 + D, k - i);
-				treestructure.SetNode(k, i, S);
+				treestructure.setNode(k, i, S);
 			}
 		}
 	}
@@ -83,17 +83,25 @@ double CRRPricer::get(int n, int i)
 	if (n == N) { return option->payoff(treestructure.GetNode(N, i)); }
 	else { return (RNP() * payofftree.GetNode(n + 1, i + 1) + (1 - RNP()) * payofftree.GetNode(n + 1, i)) / (1 + R); }
 }
-double CRRPricer::operatorfunc()
+double CRRPricer::operator()( bool closed_form )
 {
-	compute();
-	for (int i = N; i >= 0; i--)
+	if (closed_form == false)
 	{
-		for (int j = 0; j <= i; j++)
+		//payofftree.display();
+		compute();
+		for (int i = N; i >= 0; i--)
 		{
-			payofftree.SetNode(i, j, get(i, j));
+			for (int j = 0; j <= i; j++)
+			{
+				payofftree.setNode(i, j, get(i, j));
+			}
 		}
+		return payofftree.GetNode(0, 0);
 	}
-	return payofftree.GetNode(0, 0);
+	else
+	{
+		return closedformula();
+	}
 }
 
 double factorial(int n)
@@ -108,7 +116,7 @@ double factorial(int n)
 double CRRPricer::closedformula()
 {
 	double sum = 0.;
-	for (int i = 0; i <= N; i++)
+	for (int i = 0; i < N; i++)
 	{
 		sum = sum + (factorial(N) * pow(RNP(), i) * pow(1 - RNP(), N - i) * get(N, i) * (1 / (factorial(i) * factorial(N - i)))); //pow(x,y) for x^y
 	}

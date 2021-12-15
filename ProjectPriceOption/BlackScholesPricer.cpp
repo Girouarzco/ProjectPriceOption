@@ -47,7 +47,7 @@ double BlackScholesPricer::d2calculator()
 {
     return d1calculator() - volatility * (pow(option->getExpiry(), 0.5));
 }
-double BlackScholesPricer::Operator()
+double BlackScholesPricer::operator()()
 {
     if (type == OptionType::Call)
     {

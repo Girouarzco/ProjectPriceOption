@@ -1,83 +1,89 @@
 #include "BlackScholesMCPricer.h"
-#include "Option.h"
 #include "MT.h"
 #include "AsianOption.h"
-#include <numeric>
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
-BlackScholesMCPricer::BlackScholesMCPricer(Option* option, double initial_price, double interest_rate, double volatility)
-{
-	this->option = option;
-	this->interest_rate = interest_rate;
-	this->assetprice = initial_price;
-	this->volatility = volatility;
-	this->sum = 0;
-	this->sum_sqrt = 0;
-	this->NbPaths = 0;
+BlackScholesMCPricer::BlackScholesMCPricer(Option* option, double initial_price, double interest_rate, double volatility) :
+	option(option), S0(initial_price), r(interest_rate), sigma(volatility) {
+	generated_paths = 0;
+
 }
 
-int BlackScholesMCPricer::getNbPaths()
-{
-	return NbPaths;
+long BlackScholesMCPricer::getNbPaths() {
+	return generated_paths;
 }
-void BlackScholesMCPricer::setnbpaths(int x )
-{
-	this->NbPaths = x;
-}
-void BlackScholesMCPricer::generate(int nb_paths)
-{
-	std::vector<double> t;
-	NbPaths += nb_paths ;
-	if (option->isAsianOption() == false)
-	{
-		
-		t.push_back(0.0);
-		t.push_back(option->getExpiry());
+
+double BlackScholesMCPricer::generate(int nb_paths) {
+	generated_paths += nb_paths;
+	std::vector<double> Zk(nb_paths);
+	std::vector<double> Sk(nb_paths);
+	std::vector<double> Times(nb_paths);
+	if (nb_paths == 0) {
+		throw std::invalid_argument("0 added paths");
 	}
-	else
-	{
-		t.push_back(0.0);
-		t = ((AsianOption*)option)->getvec();
+	if (option->isAsianOption()) {
+		Times = ((AsianOption*)option)->getvec(); // Forcage de type
 	}
-	std::vector<double> payoffspaths ;
-	for (int n = 0; n < getNbPaths(); n++)
-	{
-		std::vector<double> S;
-		for (int i = 1; i < t.size(); i++)
-		{
-			currentestimation = assetprice * exp((interest_rate - (volatility*volatility/ 2)) *
-			(t[i]-t[i-1]) + volatility*pow(t[i] - t[i - 1],0.5) * MT::rand_norm());
-			S.push_back(currentestimation);
+	else {
+		Times[0] = option->getExpiry();
+	}
+	double res = 0;
+	for (int k = 0; k < nb_paths; k++) {
+		// Generation of a new path
+		for (int i = 0; i < Times.size(); i++) {
+			Zk[i] = MT::rand_norm();
+			if (i != 0) {
+				Sk[i] = Sk[i - 1] * exp((r - (sigma * sigma) / 2) * ((Times[i] - Times[i - 1]) + sigma * sqrt(Times[i] - Times[i - 1]) * Zk[i]));
+
+			}
+			else {
+				Sk[i] = S0 * exp((r - (sigma * sigma) / 2) * (Times[0] + sigma * sqrt(Times[0]) * Zk[0]));
+			}
 		}
-		payoffspaths.push_back(option->payoffPath(S));
+		// Adding the path to the computation of the price
+		res += option->payoffPath(Sk);
 	}
-	double sum_of_paths = 0;
-	for (int k = 0; k < payoffspaths.size(); k++)
-	{
-		sum_of_paths += payoffspaths[k];
-	}
-	sum = sum_of_paths;
-	sum_sqrt = sum_of_paths * sum_of_paths;
-	currentestimation = exp(- interest_rate * option->getExpiry()) / nb_paths *sum_of_paths ;
-}
-double BlackScholesMCPricer::operator()()
-{
-	if (currentestimation<0)
-	{
-		throw std::invalid_argument("Une de ces conditions n'est pas respéctée");
-	}
-	return currentestimation;
+	res = res * (exp(-r * option->getExpiry()));
+	price = ((generated_paths - nb_paths) * price + res) / generated_paths;
+	return price;
 }
 
-std::vector<double> BlackScholesMCPricer::confidenceInterval()
-{
-	double sd = sqrt(1 / double(NbPaths) * sum_sqrt - pow(1 / double(NbPaths) * sum, 2));
-	std::vector<double> bounds;
-	bounds.push_back(currentestimation - 1.96 * sd / NbPaths);
-	bounds.push_back(currentestimation + 1.96 * sd / NbPaths);
+double BlackScholesMCPricer::operator()() {
+	if (generated_paths == 0) {
+		throw std::invalid_argument("Undefined estimate"); // Throws an exception if the pricer is not defined
+	}
+	else {
+		return price;
+	}
+}
 
-	return bounds;
+//CDF of N(0,1) (cf BlackScholesPricer.cpp)
+double normalDistribution(double x) {
+	double k = 1.0 / (1.0 + 0.2316419 * x);
+	double k_sum = k * (0.319381530 + k * (-0.356563782 + k * (1.781477937 + k * (-1.821255978 + 1.330274429 * k))));
+	
+	if (x >= 0.0) {
+		return (1.0 - (1.0 / (pow(2 * M_PI, 0.5))) * exp(-0.5 * x * x) * k_sum);
+	}
+	else {
+		return 1.0 - normalDistribution(-x);
+	}
+}
+
+//Confidence interval at 95%
+std::vector<double> BlackScholesMCPricer::confidenceInterval() {
+	std::vector<double> IC(2);
+	double z = normalDistribution(0.975);
+	double mu = price;
+	double sigma_estim = sigma / sqrt(generated_paths);
+	double lower_bound = mu - z * sigma_estim;
+	double upper_bound = mu + z * sigma_estim;
+	IC[0] = lower_bound;
+	IC[1] = upper_bound;
+	std::cout << "Confidence interval at 95% : [" << lower_bound << ";" << upper_bound << "]" << endl;
+	return IC;
 }
 

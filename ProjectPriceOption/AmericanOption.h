@@ -5,13 +5,14 @@
 class AmericanOption : public Option
 {
 public:
-	AmericanOption(double, std::vector<double>);
+	AmericanOption(double, double);
 	bool isAmericanOption();
 	OptionType GetOptionType();
+	double Getstrike();
 	void SetOptionType(OptionType);
 
 private:
-	std::vector<double> vec;
+	double strike;
 	OptionType type;
 };
 

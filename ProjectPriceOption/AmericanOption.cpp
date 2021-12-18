@@ -1,13 +1,12 @@
 #include "AmericanOption.h"
 
-bool AmericanOption::isAmericanOption()
+AmericanOption::AmericanOption(double x, double y) : Option(x)
 {
-	return true;
-}
-
-AmericanOption::AmericanOption(double x, std::vector<double> vect) : Option(x)
-{
-	this->vec = vect;
+	if (y < 0)
+	{
+		this->strike = 0;
+	}
+	else { this->strike = y; }
 }
 
 OptionType AmericanOption::GetOptionType()
@@ -15,7 +14,17 @@ OptionType AmericanOption::GetOptionType()
 	return type;
 }
 
+double AmericanOption::Getstrike()
+{
+	return strike;
+}
+
 void AmericanOption::SetOptionType(OptionType nouv)
 {
 	type = nouv;
+}
+
+bool AmericanOption::isAmericanOption()
+{
+	return true;
 }

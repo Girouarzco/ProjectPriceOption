@@ -2,17 +2,23 @@
 #include "Option.h"
 class BlackScholesMCPricer
 {
-private:
-	long generated_paths; //Total number of paths created
-	Option* option;
-	double price; //Price
-	double S0; //Initial price
-	double r; //Interest rate
-	double sigma; //Volatility
 public:
-	BlackScholesMCPricer(Option*, double, double, double); //Option* option, double initial_price, double interest rate, double volatility)
-	long getNbPaths();
-	double generate(int);
-	double operator()(); //throws an exception if not defined
+	BlackScholesMCPricer(Option*, double, double, double);
+	int getNbPaths();
+	void setnbpaths(int);
+	void generate(int);
+	double operator()();
 	std::vector<double> confidenceInterval();
+
+private:
+	int NbPaths;
+	double assetprice;
+	double interest_rate;
+	double volatility;
+	Option* option;
+	double currentestimation;
+	double sum;
+	double sum_squared;
+
 };
+

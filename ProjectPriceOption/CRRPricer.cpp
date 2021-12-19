@@ -27,8 +27,8 @@ CRRPricer::CRRPricer(Option* option, int depth, double asset_price, double r, do
 {
 	this->S0 = asset_price;
 	double h = option->getExpiry() / depth;
-	this->U = exp((r + pow(volatility, 2) / 2) * h + volatility * sqrt(h));
-	this->D = exp((r + pow(volatility, 2) / 2) * h - volatility * sqrt(h));
+	this->U = exp((r + pow(volatility, 2) / 2) * h + volatility * sqrt(h))-1;
+	this->D = exp((r + pow(volatility, 2) / 2) * h - volatility * sqrt(h))-1;
 	this->R = exp(r * h) - 1;
 	this->N = depth;
 	this->option = option;
